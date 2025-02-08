@@ -1,4 +1,5 @@
 import React from "react";
+import UploadPdfDialog from "./_components/UploadPdfDialog";
 
 function page() {
   return (

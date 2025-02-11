@@ -2,10 +2,16 @@ import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { NextResponse } from "next/server";
 
-const pdfUrl =
-  "https://adept-marmot-953.convex.cloud/api/storage/feb5af36-65d9-407a-bf35-b72a2e075f6d";
+// const pdfUrl =
+//   "https://adept-marmot-953.convex.cloud/api/storage/feb5af36-65d9-407a-bf35-b72a2e075f6d";
 
 export async function GET(req) {
+  const reqUrl = req.url;
+  const { searchParams } = new URL(reqUrl);
+  const pdfUrl = searchParams.get("pdfUrl");
+
+  console.log(pdfUrl);
+
   // 1. Fetch the PDF file
   const response = await fetch(pdfUrl);
   const data = await response.blob();

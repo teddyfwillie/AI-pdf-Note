@@ -13,14 +13,17 @@ import {
 } from "../../../components/ui/dialog";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
-import { useMutation } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Loader2Icon } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import uuid4 from "uuid4";
+import axios from "axios";
 
 function UploadPdfDialog({ children }) {
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
+
+  const embeddDocument = useAction(api.myActions.ingest);
 
   const { user } = useUser();
   const getFileUrl = useMutation(api.fileStorage.getFileUrl);
@@ -28,6 +31,7 @@ function UploadPdfDialog({ children }) {
   const [file, setFile] = useState();
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [open, setOpen] = useState(false);
 
   const OnFileSelect = (e) => {
     setFile(e.target.files[0]);
@@ -38,7 +42,7 @@ function UploadPdfDialog({ children }) {
     // Step 1: Get a short-lived upload URL
     const postUrl = await generateUploadUrl();
 
-    // Step 2: POST the file to the URL
+    // // Step 2: POST the file to the URL
     const result = await fetch(postUrl, {
       method: "POST",
       headers: { "Content-Type": file?.type },
@@ -50,7 +54,7 @@ function UploadPdfDialog({ children }) {
     const fileId = uuid4();
     const fileUrl = await getFileUrl({ storageId: storageId });
 
-    // Step 3: Save the newly allocated storage id to the database
+    // // Step 3: Save the newly allocated storage id to the database
     const response = await AddFileEntry({
       fileId: fileId,
       storageId: storageId,
@@ -60,12 +64,29 @@ function UploadPdfDialog({ children }) {
     });
     console.log(response);
 
+    // API call to Fetch PDF Process Data
+
+    const ApiResp = await axios.get("/api/pdf-loader?pdfUrl=" + fileUrl);
+    console.log(ApiResp.data.result);
+
+    // Embed Document
+    await embeddDocument({
+      splitText: ApiResp.data.result,
+      fileId: fileId,
+    });
+    // console.log(embdeddResult);
+
     setLoading(false);
+    setOpen(false);
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open}>
+      <DialogTrigger asChild>
+        <Button onClick={() => setOpen(true)} className="w-full">
+          + Upload PDF File
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload PDF File</DialogTitle>
@@ -95,7 +116,7 @@ function UploadPdfDialog({ children }) {
               Close
             </Button>
           </DialogClose>
-          <Button onClick={OnUpload}>
+          <Button onClick={OnUpload} disabled={loading}>
             {loading ? <Loader2Icon className="animate-spin" /> : "Upload"}
           </Button>
         </DialogFooter>

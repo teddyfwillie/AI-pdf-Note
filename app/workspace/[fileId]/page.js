@@ -25,7 +25,7 @@ function workspace() {
       <div className="grid grid-cols-2 gap-4 p-5">
         <div>
           {/* PDF Vierwer */}
-          <TextEditor />
+          <TextEditor fileId={fileId} />
         </div>
         <div>
           {/* Text Editor */}

@@ -1,4 +1,4 @@
-import { useAction } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import {
   Heading1,
   Heading2,
@@ -16,6 +16,7 @@ import { api } from "../../../convex/_generated/api";
 import { useParams } from "next/navigation";
 import { chatSession } from "../../../configs/AIModel";
 import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
 
 function EditorExtension({ editor }) {
   if (!editor) {
@@ -25,6 +26,8 @@ function EditorExtension({ editor }) {
   const { fileId } = useParams();
 
   const SearchAi = useAction(api.myActions.search);
+  const saveNotes = useMutation(api.notes.AddNotes);
+  const { user } = useUser();
 
   const onAiClick = async () => {
     // console.log("AI button click");
@@ -69,6 +72,12 @@ function EditorExtension({ editor }) {
     editor.commands.setContent(
       AllText + "<p><strong>Answer:</strong> " + FinalAns + "</p>"
     );
+
+    saveNotes({
+      notes: editor.getHTML(),
+      fileId: fileId,
+      createdBy: user.primaryEmailAddress?.emailAddress,
+    });
   };
 
   return (

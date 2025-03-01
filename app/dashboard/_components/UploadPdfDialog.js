@@ -20,7 +20,7 @@ import { useUser } from "@clerk/nextjs";
 import uuid4 from "uuid4";
 import axios from "axios";
 
-function UploadPdfDialog({ children }) {
+function UploadPdfDialog({ children, isMaxed }) {
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
 
   const embeddDocument = useAction(api.myActions.ingest);
@@ -83,7 +83,7 @@ function UploadPdfDialog({ children }) {
   return (
     <Dialog open={open}>
       <DialogTrigger asChild>
-        <Button onClick={() => setOpen(true)} className="w-full">
+        <Button onClick={() => setOpen(true)} disabled={isMaxed} className="w-full">
           + Upload PDF File
         </Button>
       </DialogTrigger>

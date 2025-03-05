@@ -1,6 +1,24 @@
+"use client"
+
+import { PayPalButtons } from '@paypal/react-paypal-js';
 import React from 'react';
+import { mutation } from '../../../convex/_generated/server';
+import { api } from '../../../convex/_generated/api';
+import { useUser } from '@clerk/nextjs';
+import { toast } from 'sonner';
 
 function Page() {
+    const userUpgradePlan = mutation(api.user.userUpgradePlan)
+    const {user} = useUser();
+
+    const onPaymentSuccess = () => {
+        const result = userUpgradePlan({
+            email: user?.primaryEmailAddress?.emailAddress,
+            
+        })
+        console.log(result);
+        toast.success("Payment success");
+    }
   return (
     <div className=" py-12">
       <div className="text-center mb-12">
@@ -92,12 +110,24 @@ function Page() {
               ))}
             </ul>
 
-            <a
+            {/* <a
               href="#"
               className="mt-8 block w-full rounded-lg bg-white px-6 py-3 text-center text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors duration-300"
             >
               Get Started
-            </a>
+            </a> */}
+            <div className="mt-8 block w-full rounded-lg bg-white px-6 py-3 text-center text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-colors duration-300">
+                <PayPalButtons onApprove={() => onPaymentSuccess()} onCancel={() => console.log("Payment Cancelled")} createOrder={(data, actions)=> {
+                    return actions?.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '2.99',
+                                currency_code: 'USD'
+                            }
+                        }]
+                    });
+                }} />
+            </div>
           </div>
         </div>
       </div>

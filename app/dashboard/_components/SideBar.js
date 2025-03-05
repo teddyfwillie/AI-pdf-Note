@@ -13,9 +13,13 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 function SideBar() {
-
-  const {user} = useUser();
+  const { user } = useUser();
   const path = usePathname();
+
+  const GetUserInfo = useQuery(api.user.GetUserInfo, {
+    userEmail: user?.primaryEmailAddress?.emailAddress,
+  });
+  console.log(GetUserInfo);
 
   const fileList = useQuery(api.fileStorage.GetUserFiles, {
     userEmail: user?.primaryEmailAddress?.emailAddress,
@@ -25,28 +29,39 @@ function SideBar() {
     <div className="shadow-sm h-screen p-7">
       <Image src={"/logo.svg"} alt="logo" width={120} height={120} />
       <div className="mt-10">
-        <UploadPdfDialog isMaxed={fileList?.length === 5?true:false}>
+        <UploadPdfDialog
+          isMaxed={
+            fileList?.length >= 5 && !GetUserInfo?.upgrade ? true : false
+          }
+        >
           <Button className="w-full">+ Upload PDF</Button>
         </UploadPdfDialog>
         <Link href={"/dashboard"}>
-        <div className={`flex gap-2 items-center p-3 mt-5 hover:bg-slate-100 cursor-pointer rounded-lg ${path === "/dashboard" && "bg-slate-100"}`}>
-          <Layout />
-          <h2>Workspace</h2>
-        </div>
+          <div
+            className={`flex gap-2 items-center p-3 mt-5 hover:bg-slate-100 cursor-pointer rounded-lg ${path === "/dashboard" && "bg-slate-100"}`}
+          >
+            <Layout />
+            <h2>Workspace</h2>
+          </div>
         </Link>
         <Link href={"/dashboard/upgrade"}>
-        <div className={`flex gap-2 items-center p-3 mt-1 hover:bg-slate-100 cursor-pointer rounded-lg ${path === "/dashboard/upgrade" && "bg-slate-100"}`}>
-          <Shield />
-          <h2>Upgrade</h2>
-        </div>
-        
+          <div
+            className={`flex gap-2 items-center p-3 mt-1 hover:bg-slate-100 cursor-pointer rounded-lg ${path === "/dashboard/upgrade" && "bg-slate-100"}`}
+          >
+            <Shield />
+            <h2>Upgrade</h2>
+          </div>
         </Link>
       </div>
-      <div className=" absolute bottom-24 w-[80%]">
-      <Progress value={((fileList?.length || 0) / 5) * 100} />   
-      <p className="text-sm mt-1">{(fileList?.length || 0)} out of 5 PDF Uploaded</p>
-        <p className="text-sm text-gray-400 mt-2">Upgrade to Upload</p>
-      </div>
+      {!GetUserInfo?.upgrade && (
+        <div className=" absolute bottom-24 w-[80%]">
+          <Progress value={((fileList?.length || 0) / 5) * 100} />
+          <p className="text-sm mt-1">
+            {fileList?.length || 0} out of 5 PDF Uploaded
+          </p>
+          <p className="text-sm text-gray-400 mt-2">Upgrade to Upload</p>
+        </div>
+      )}
     </div>
   );
 }

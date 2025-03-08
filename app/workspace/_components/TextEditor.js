@@ -5,6 +5,10 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import TextAlign from "@tiptap/extension-text-align";
+import Strike from "@tiptap/extension-strike";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
 
 function TextEditor({ fileId }) {
   const notes = useQuery(api.notes.GetNotes, {
@@ -16,11 +20,18 @@ function TextEditor({ fileId }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      TextAlign.configure({
+        types: ["paragraph", "heading", "code_block"],
+      }),
+      Strike,
+      BulletList,
+      OrderedList,
       Placeholder.configure({
         placeholder: "Start typing...",
       }),
     ],
     editorProps: {
+      immediatelyRender: false, // Disable SSR
       attributes: {
         class: "focus:outline-none h-screen p-5",
       },

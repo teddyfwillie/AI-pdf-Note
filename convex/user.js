@@ -6,6 +6,7 @@ export const createUser = mutation({
     email: v.string(),
     userName: v.string(),
     imageUrl: v.string(),
+    upgrade: v.boolean(),
   },
   handler: async (ctx, args) => {
     // if user already exist
@@ -15,7 +16,7 @@ export const createUser = mutation({
       .collect();
 
     // if Not, then insert new user entry
-    if (user?.length == 0) {
+    if (user?.length === 0) {
       await ctx.db.insert("users", {
         email: args.email,
         userName: args.userName,

@@ -10,6 +10,14 @@ import {
   Italic,
   Highlighter,
   Sparkles,
+  List,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Image,
+  Link,
+  Strikethrough,
+  Quote,
 } from "lucide-react";
 import React from "react";
 import { api } from "../../../convex/_generated/api";
@@ -30,7 +38,6 @@ function EditorExtension({ editor }) {
   const { user } = useUser();
 
   const onAiClick = async () => {
-    // console.log("AI button click");
     toast("Answer loading...");
 
     const selectedText = editor.state.doc.textBetween(
@@ -38,13 +45,11 @@ function EditorExtension({ editor }) {
       editor.state.selection.to,
       " "
     );
-    // console.log("selectedText", selectedText);
 
     const result = await SearchAi({
       query: selectedText,
       fileId: fileId,
     });
-    // console.log("Unformatted Ans:", result);
 
     const UnformattedAnswers = JSON.parse(result);
     let AllUnformattedAnswers = "";
@@ -116,38 +121,37 @@ function EditorExtension({ editor }) {
             <Heading3 size={20} />
           </button>
 
-          {/* Bold */}
+          {/* Text Formatting */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={editor.isActive("bold") ? "text-blue-500" : ""}
           >
             <Bold size={20} />
           </button>
-
-          {/* Italic */}
           <button
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={editor.isActive("italic") ? "text-blue-500" : ""}
           >
             <Italic size={20} />
           </button>
-
-          {/* Underline */}
           <button
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             className={editor.isActive("underline") ? "text-blue-500" : ""}
           >
             <Underline size={20} />
           </button>
-
-          {/* Code */}
+          <button
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={editor.isActive("strike") ? "text-blue-500" : ""}
+          >
+            <Strikethrough size={20} />
+          </button>
           <button
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={editor.isActive("code") ? "text-blue-500" : ""}
           >
             <Code size={20} />
           </button>
-          {/* Highlight */}
           <button
             onClick={() =>
               editor.chain().focus().toggleHighlight({ color: "#fffa81" }).run()
@@ -157,14 +161,77 @@ function EditorExtension({ editor }) {
             <Highlighter size={20} />
           </button>
 
-          {/* Ordered List */}
+          {/* Lists */}
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={editor.isActive("bulletList") ? "text-blue-500" : ""}
+          >
+            <List size={20} />
+          </button>
           <button
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={editor.isActive("orderedList") ? "text-blue-500" : ""}
           >
             <ListOrdered size={20} />
           </button>
-          {/* Ordered List */}
+
+          {/* Alignment */}
+          <button
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            className={
+              editor.isActive({ textAlign: "left" }) ? "text-blue-500" : ""
+            }
+          >
+            <AlignLeft size={20} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            className={
+              editor.isActive({ textAlign: "center" }) ? "text-blue-500" : ""
+            }
+          >
+            <AlignCenter size={20} />
+          </button>
+          <button
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            className={
+              editor.isActive({ textAlign: "right" }) ? "text-blue-500" : ""
+            }
+          >
+            <AlignRight size={20} />
+          </button>
+
+          {/* Block Elements */}
+          <button
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={editor.isActive("blockquote") ? "text-blue-500" : ""}
+          >
+            <Quote size={20} />
+          </button>
+
+          {/* Media */}
+          <button
+            onClick={() => {
+              const url = window.prompt("Enter the image URL");
+              if (url) {
+                editor.chain().focus().setImage({ src: url }).run();
+              }
+            }}
+          >
+            <Image size={20} />
+          </button>
+          <button
+            onClick={() => {
+              const url = window.prompt("Enter the URL");
+              if (url) {
+                editor.chain().focus().toggleLink({ href: url }).run();
+              }
+            }}
+          >
+            <Link size={20} />
+          </button>
+
+          {/* AI Integration */}
           <button onClick={() => onAiClick()} className={"hover:text-blue-500"}>
             <Sparkles size={20} />
           </button>
